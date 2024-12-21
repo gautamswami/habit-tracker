@@ -12,6 +12,7 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "habitsample.sampleapp",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -36,6 +37,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "d2e94f11-c184-4f90-a590-d3978e6c2ac2"
+      }
     }
   }
 }
