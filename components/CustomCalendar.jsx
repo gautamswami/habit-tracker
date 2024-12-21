@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 const CustomCalendar = ({ highlightedDates = [] }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(null); // State to track selected date
   const today = new Date();
 
   // Helper function to get days in a month
@@ -36,6 +37,7 @@ const CustomCalendar = ({ highlightedDates = [] }) => {
       const prevMonth = new Date(prev.setMonth(prev.getMonth() - 1));
       return prevMonth;
     });
+    setSelectedDate(null); // Reset selected date when changing months
   };
 
   const handleNextMonth = () => {
@@ -43,6 +45,7 @@ const CustomCalendar = ({ highlightedDates = [] }) => {
       const nextMonth = new Date(prev.setMonth(prev.getMonth() + 1));
       return nextMonth;
     });
+    setSelectedDate(null); // Reset selected date when changing months
   };
 
   // Check if a date is today
@@ -60,7 +63,20 @@ const CustomCalendar = ({ highlightedDates = [] }) => {
     return highlightedDates.includes(dateString);
   };
 
-  const [selectedDate,setSelectedDate] = useState('')
+  // Check if a date is selected
+  const isSelected = (day) => {
+    return (
+      selectedDate &&
+      selectedDate.day === day &&
+      selectedDate.month === currentDate.getMonth() &&
+      selectedDate.year === currentDate.getFullYear()
+    );
+  };
+
+  // Handle date selection
+  const handleDateSelect = (day) => {
+    setSelectedDate({ day, month: currentDate.getMonth(), year: currentDate.getFullYear() });
+  };
 
   return (
     <View style={styles.container}>
@@ -89,22 +105,24 @@ const CustomCalendar = ({ highlightedDates = [] }) => {
       {/* Calendar Dates */}
       <View style={styles.calendar}>
         {calendarDays.map((day, index) => (
-          <TouchableOpacity onPress={()=>{console.log(index,day,'index - day',currentDate);setSelectedDate(day)}} key={index} style={styles.dayContainer}>
+          <View key={index} style={styles.dayContainer}>
             {day ? (
-              <Text
-                style={[
-                  styles.dayText,
-                  isToday(day) && styles.today,
-                  isHighlighted(day) && styles.highlighted,
-                  selectedDate === day && styles.today
-                ]}
-              >
-                {day}
-              </Text>
+              <TouchableOpacity onPress={() => handleDateSelect(day)}>
+                <Text
+                  style={[
+                    styles.dayText,
+                    isToday(day) && styles.today,
+                    isHighlighted(day) && styles.highlighted,
+                    isSelected(day) && styles.selected,
+                  ]}
+                >
+                  {day}
+                </Text>
+              </TouchableOpacity>
             ) : (
               <Text style={styles.emptySlot}></Text>
             )}
-          </TouchableOpacity>
+          </View>
         ))}
       </View>
     </View>
@@ -132,7 +150,6 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color:'white'
   },
   weekDays: {
     flexDirection: 'row',
@@ -142,8 +159,8 @@ const styles = StyleSheet.create({
   weekDayText: {
     flex: 1,
     textAlign: 'center',
-    fontWeight: 300,
-    color: 'lightgray',
+    fontWeight: 'bold',
+    color: '#555',
   },
   calendar: {
     flexDirection: 'row',
@@ -156,7 +173,7 @@ const styles = StyleSheet.create({
   },
   dayText: {
     fontSize: 16,
-    color: 'white',
+    color: '#333',
   },
   today: {
     color: 'white',
@@ -168,6 +185,13 @@ const styles = StyleSheet.create({
   highlighted: {
     color: 'white',
     backgroundColor: 'blue',
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+  selected: {
+    color: 'white',
+    backgroundColor: 'green',
     borderRadius: 20,
     paddingHorizontal: 10,
     paddingVertical: 5,
