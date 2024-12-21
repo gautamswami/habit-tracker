@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, StyleSheet, TouchableOpacity, Text } from "react-native";
+import { View, StyleSheet, TouchableOpacity, Text, ScrollView } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import EvilIcons from "@expo/vector-icons/EvilIcons";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -9,6 +9,10 @@ import { LinearGradient } from "expo-linear-gradient";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import Feather from "@expo/vector-icons/Feather";
 import CircularProgress from "@/components/CircularProgress";
+import ParallaxScrollView from "@/components/ParallaxScrollView";
+import { IconSymbol } from '@/components/ui/IconSymbol';
+import Animated, { useAnimatedRef } from "react-native-reanimated";
+
 export default function App() {
   const navigation = useNavigation();
 
@@ -18,7 +22,7 @@ export default function App() {
   const [selectedDate, setSelectedDate] = useState(new Date().getDate());
   const [waterProgress, setWaterProgress] = useState(0);
   const [meditationProgress, setMeditationProgress] = useState(0.1);
-  
+
   // Get day of the week
   const daysOfWeek = [
     "Sunday",
@@ -59,6 +63,14 @@ export default function App() {
   };
 
   const dates = getDatesOfMonth();
+
+  const [habits, setHabits] = useState([
+    { name: "Water", target: 4, completed: 0 },
+    { name: "Water", target: 4, completed: 0 },
+    { name: "Water", target: 4, completed: 0 },
+
+
+  ]);
 
   const renderItem = ({ item }) => {
     const isToday = item.getDate() === selectedDate;
@@ -139,10 +151,16 @@ export default function App() {
       </LinearGradient>
     );
   };
+  const scrollRef = useAnimatedRef();
+
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={{ padding: 10 }}>
+      <Animated.ScrollView
+        ref={scrollRef}
+        scrollEventThrottle={16}
+        scrollIndicatorInsets={20}
+        contentContainerStyle={{ padding:10,paddingBottom:  160 }}>
         <View
           style={{
             flexDirection: "row",
@@ -242,59 +260,43 @@ export default function App() {
                 flexWrap: "wrap",
               }}
             >
-              <View
-                style={{
-                  width: "48%",
-                  backgroundColor: "#262626",
-                  padding: 10,
-                  borderRadius: 20,
-                  alignItems: "center",
-                }}
-              >
-                <View
-                  style={{ flexDirection: "row", gap: 5, alignItems: "center",width:"100%" }}
-                >
-                  {" "}
-                  <Feather name="droplet" size={25} color="white" />{" "}
-                  <Text style={{ color: "white", fontSize: 20 }}>Water</Text>
-                </View>
-                <CircularProgress
-                  progress={waterProgress} 
-                  onProgressChange={setWaterProgress}
-                />
-                {/* <LinearGradient
-                  colors={["#9B43FF", "#88D7F6"]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={{
-                    alignItems: "center",
-                    marginHorizontal: 5,
-                    backgroundColor: "black",
-                    width: 120,
-                    height: 120,
-                    borderRadius: 100,
-                    justifyContent: "center",
-                    marginTop:10
-                  }}
-                >
+              {habits?.map((habit, id) => {
+                return (
                   <View
                     style={{
+                      width: "48%",
                       backgroundColor: "#262626",
-                      width: 110,
-                      borderRadius: 100,
-                      height: 110,
-                      justifyContent: "center",
+                      padding: 10,
+                      borderRadius: 20,
+                      alignItems: "center",
                     }}
                   >
-                    <Text style={{textAlign:"center",color:'white',fontSize:20}}>1 of 10</Text>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        gap: 5,
+                        alignItems: "center",
+                        width: "100%",
+                        marginBottom: 10,
+                      }}
+                    >
+                      {" "}
+                      <Feather name="droplet" size={25} color="white" />{" "}
+                      <Text style={{ color: "white", fontSize: 20 }}>
+                        {habit?.name}
+                      </Text>
+                    </View>
+                    <CircularProgress
+                      progress={waterProgress}
+                      onProgressChange={setWaterProgress}
+                    />
                   </View>
-                </LinearGradient> */}
-               </View>
+                );
+              })}
             </View>
           </View>
         </View>
-        
-      </View>
+      </Animated.ScrollView>
       <CustomTabBar />
     </SafeAreaView>
   );
