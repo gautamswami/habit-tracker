@@ -7,7 +7,7 @@ import Octicons from "@expo/vector-icons/Octicons";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import Entypo from "@expo/vector-icons/Entypo";
-import HelloModal from "./HelloModal";
+import HelloModal from "../app/(tabs)/HelloModal";
 
 const CustomTabBar = () => {
   const navigation = useNavigation();

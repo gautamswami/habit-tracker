@@ -1,6 +1,6 @@
 import React from "react";
 import {  StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import CustomTabBar from "./CustomTabBar";
+import CustomTabBar from "../../components/CustomTabBar";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Chart() {

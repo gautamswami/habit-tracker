@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-
+import Ionicons from '@expo/vector-icons/Ionicons';
 const CustomCalendar = ({ highlightedDates = [] }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null); // State to track selected date
@@ -83,13 +83,13 @@ const CustomCalendar = ({ highlightedDates = [] }) => {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={handlePreviousMonth} style={styles.button}>
-          <Text style={styles.buttonText}>Back</Text>
+        <Ionicons name="chevron-back" size={24} color="white" />
         </TouchableOpacity>
         <Text style={styles.headerText}>
           {currentDate.toLocaleString('default', { month: 'long' })} {currentDate.getFullYear()}
         </Text>
         <TouchableOpacity onPress={handleNextMonth} style={styles.button}>
-          <Text style={styles.buttonText}>Next</Text>
+        <Ionicons name="chevron-forward-outline" size={24} color="white" />
         </TouchableOpacity>
       </View>
 
@@ -141,8 +141,8 @@ const styles = StyleSheet.create({
   },
   button: {
     padding: 10,
-    backgroundColor: '#007BFF',
-    borderRadius: 5,
+    backgroundColor: '#7C55FE',
+    borderRadius: 50,
   },
   buttonText: {
     color: 'white',
@@ -150,6 +150,7 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 18,
     fontWeight: 'bold',
+    color:"white"
   },
   weekDays: {
     flexDirection: 'row',
@@ -159,8 +160,8 @@ const styles = StyleSheet.create({
   weekDayText: {
     flex: 1,
     textAlign: 'center',
-    fontWeight: 'bold',
-    color: '#555',
+    fontWeight: 300,
+    color: 'lightgray',
   },
   calendar: {
     flexDirection: 'row',
@@ -170,31 +171,32 @@ const styles = StyleSheet.create({
     width: '14.28%', // 7 columns
     alignItems: 'center',
     marginBottom: 10,
+    marginTop: 10,
+    
   },
   dayText: {
     fontSize: 16,
-    color: '#333',
+    color: 'white',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
   },
   today: {
     color: 'white',
-    backgroundColor: 'red',
+    backgroundColor: '#7C55FE',
     borderRadius: 20,
     paddingHorizontal: 10,
     paddingVertical: 5,
+   
   },
   highlighted: {
-    color: 'white',
-    backgroundColor: 'blue',
-    borderRadius: 20,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
+    color: 'black',
+    backgroundColor: 'white',
+    borderRadius: 30,
   },
   selected: {
-    color: 'white',
-    backgroundColor: 'green',
+    color: 'black',
+    backgroundColor: 'white',
     borderRadius: 20,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
   },
   emptySlot: {
     width: '100%',

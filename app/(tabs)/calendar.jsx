@@ -1,11 +1,10 @@
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import CustomTabBar from "./CustomTabBar";
 import { useNavigation } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Calendar, CalendarList, Agenda } from "react-native-calendars";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import CustomCalendar from "@/components/CustomCalendar";
+import Completed from "@/components/home/completed";
 export default function CalendarFunction() {
   const navigation = useNavigation();
 
@@ -16,31 +15,16 @@ export default function CalendarFunction() {
         style={{ flexDirection: "row", alignItems: "center",marginBottom:30 }}
       >
         <Ionicons
-          name="arrow-back-outline"
+          name="caret-back-outline"
           size={24}
           color="white"
           style={{ width: 30 }}
         />
         <Text style={{ color: "white", fontSize: 20 }}>Back</Text>
       </TouchableOpacity>
-      {/* <Calendar
-        style={{
-          height: 350,
-          color:"white"
-        }}
-        current={"2025-01-01"}
-        onDayPress={(day) => {
-          console.log("selected day", day);
-        }}
-        markedDates={{
-          "2025-01-01": { selected: true, marked: true, selectedColor: "blue" },
-          "2025-01-04": { marked: true },
-          "2025-01-06": { selected: true, marked: true, selectedColor: "green" },
-        }}
-      /> */}
-      <CustomCalendar highlightedDates={['2024-12-25', '2024-12-31']} />
+      <CustomCalendar />  
+      <Completed />
 
-      <Text>SAMPLE TEXT</Text>
     </SafeAreaView>
   );
 }

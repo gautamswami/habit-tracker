@@ -3,7 +3,7 @@ import { View, StyleSheet, TouchableOpacity, Text, ScrollView } from "react-nati
 import { useNavigation } from "@react-navigation/native";
 import EvilIcons from "@expo/vector-icons/EvilIcons";
 import { SafeAreaView } from "react-native-safe-area-context";
-import CustomTabBar from "./CustomTabBar";
+import CustomTabBar from "../../components/CustomTabBar";
 import { FlatList } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
@@ -12,6 +12,7 @@ import CircularProgress from "@/components/CircularProgress";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import Animated, { useAnimatedRef } from "react-native-reanimated";
+import Completed from "@/components/home/completed";
 
 export default function App() {
   const navigation = useNavigation();
@@ -117,40 +118,7 @@ export default function App() {
     );
   };
 
-  const renderCompletedCards = ({ item, id }) => {
-    return (
-      <LinearGradient
-        colors={["#97E3FF", "#9A5FFF", "#FF989A"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
-        style={{
-          // width:"50%",
-          padding: 20,
-          borderRadius: 20,
-        }}
-        key={`card-${id}`}
-      >
-        <Text
-          style={{
-            color: "white",
-            fontSize: 24,
-            fontWeight: "600",
-            textDecorationLine: "line-through",
-            textAlign: "center",
-          }}
-        >
-          {item.title}{" "}
-          {item.complete !== item?.total && (
-            <>
-              {"("}
-              {item.complete}/{item.total}
-              {")"}
-            </>
-          )}
-        </Text>
-      </LinearGradient>
-    );
-  };
+  
   const scrollRef = useAnimatedRef();
 
 
@@ -199,47 +167,7 @@ export default function App() {
           })}
           style={{ marginVertical: 30 }}
         />
-        <View>
-          <Text
-            style={{
-              color: "white",
-              fontSize: 24,
-              fontWeight: "600",
-              marginBottom: 20,
-            }}
-          >
-            Completed
-          </Text>
-          <FlatList
-            data={[
-              {
-                title: "Drink water",
-                complete: 6,
-                total: 10,
-              },
-              {
-                title: "Read book",
-                complete: 1,
-                total: 1,
-              },
-              {
-                title: "Workout",
-                complete: 1,
-                total: 1,
-              },
-              {
-                title: "Yoga",
-                complete: 1,
-                total: 1,
-              },
-            ]}
-            renderItem={renderCompletedCards}
-            keyExtractor={(item) => item.title}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ justifyContent: "center", gap: 10 }}
-          />
-        </View>
+       <Completed />
         <View>
           <View style={{ marginTop: 20 }}>
             <Text
@@ -270,6 +198,7 @@ export default function App() {
                       borderRadius: 20,
                       alignItems: "center",
                     }}
+                    key={`habit-${id}`}
                   >
                     <View
                       style={{
@@ -280,8 +209,7 @@ export default function App() {
                         marginBottom: 10,
                       }}
                     >
-                      {" "}
-                      <Feather name="droplet" size={25} color="white" />{" "}
+                      <Feather name="droplet" size={25} color="white" />
                       <Text style={{ color: "white", fontSize: 20 }}>
                         {habit?.name}
                       </Text>
