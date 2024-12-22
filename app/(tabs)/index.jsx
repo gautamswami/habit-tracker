@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { View, StyleSheet, TouchableOpacity, Text, ScrollView } from "react-native";
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Text,
+  ScrollView,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import EvilIcons from "@expo/vector-icons/EvilIcons";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -10,7 +16,7 @@ import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import Feather from "@expo/vector-icons/Feather";
 import CircularProgress from "@/components/CircularProgress";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
-import { IconSymbol } from '@/components/ui/IconSymbol';
+import { IconSymbol } from "@/components/ui/IconSymbol";
 import Animated, { useAnimatedRef } from "react-native-reanimated";
 import Completed from "@/components/home/completed";
 
@@ -69,8 +75,6 @@ export default function App() {
     { name: "Water", target: 4, completed: 0 },
     { name: "Water", target: 4, completed: 0 },
     { name: "Water", target: 4, completed: 0 },
-
-
   ]);
 
   const renderItem = ({ item }) => {
@@ -118,9 +122,7 @@ export default function App() {
     );
   };
 
-  
   const scrollRef = useAnimatedRef();
-
 
   return (
     <SafeAreaView style={styles.container}>
@@ -128,7 +130,8 @@ export default function App() {
         ref={scrollRef}
         scrollEventThrottle={16}
         scrollIndicatorInsets={20}
-        contentContainerStyle={{ padding:10,paddingBottom:  160 }}>
+        contentContainerStyle={{ padding: 10, paddingBottom: 160 }}
+      >
         <View
           style={{
             flexDirection: "row",
@@ -167,7 +170,7 @@ export default function App() {
           })}
           style={{ marginVertical: 30 }}
         />
-       <Completed />
+        <Completed />
         <View>
           <View style={{ marginTop: 20 }}>
             <Text

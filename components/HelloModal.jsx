@@ -21,8 +21,11 @@ const HelloModal = ({ visible, onClose }) => {
       visible={visible}
       onRequestClose={onClose}
     >
-      <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
+      <TouchableOpacity style={styles.modalContainer}
+       activeOpacity={1}
+       onPress={onClose}
+      >
+        <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
         <TouchableOpacity style={{position:'absolute',left:'104%',top:-10}} onPress={onClose}>
         <AntDesign name="closecircle" size={34} color="white"  />
         </TouchableOpacity>
@@ -213,7 +216,7 @@ const HelloModal = ({ visible, onClose }) => {
             </Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </TouchableOpacity>
     </Modal>
   );
 };
