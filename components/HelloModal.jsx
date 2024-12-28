@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Modal,
   View,
@@ -11,9 +11,116 @@ import {
 import EvilIcons from "@expo/vector-icons/EvilIcons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import AntDesign from "@expo/vector-icons/AntDesign";
-const HelloModal = ({ visible, onClose }) => {
-  const [dayTimes, setDayTimes] = useState(1);
-  const [periodSelect, setPeriodSelect] = useState("daily");
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { ModalContext } from "@/app/_layout";
+const HelloModal = ({ visible, onClose,modalVisible }) => {
+  const context = useContext(ModalContext);
+  const {homeData, setHomeData} = context;
+
+  const [input,setInputs] = useState({
+    name:"",
+    description: "",
+    target: 1,
+    frequency:"daily"
+  })
+
+  const storeData = async (updatedData) => {
+    try {
+      const jsonValue = JSON.stringify(updatedData);
+      await AsyncStorage.setItem('home-habits', jsonValue);
+    } catch (e) {
+      // saving error
+
+    }
+  };
+
+  const getData = async (key) => {
+    try {
+      const jsonValue = await AsyncStorage.getItem(key);
+
+      return jsonValue != null ? JSON.parse(jsonValue) : [];
+    } catch (e) {
+
+      // error reading value
+    }
+  };
+  const [error,setError] = useState({
+    name:'',
+  });
+  const handleCreate = async()=>{
+
+    if(modalVisible?.action === 'Edit'){
+      const updatedData = homeData.map((item)=>{
+        if(item.id === modalVisible?.data?.id){
+          return {
+            ...item,
+            name:input.name,
+            description:input.description,
+            target:input.target,
+            frequency:input.frequency,
+          }
+        }
+        return item;
+      })
+      setHomeData(updatedData);
+      storeData(updatedData);
+      onClose();
+      return;
+    }
+
+    const newHabit = {
+      id:homeData.length+1 || 1,
+      name:input.name,
+      description:input.description,
+      target:input.target,
+      frequency:input.frequency,
+      completed:0
+    }
+    if(!input.name || input.name===''){
+        setError({...error,name:'Please enter a valid name'})
+        return;
+    }
+    try{
+    const updatedData = [...homeData,newHabit]
+    setHomeData(updatedData);
+    storeData(updatedData);
+
+    }catch(e){
+
+    }
+    finally {
+      onClose();
+    }
+  }
+
+  useEffect(()=>{
+    const homeDataGet = async()=>{
+      try{
+        const data = await getData('home-habits');
+        setHomeData(data||[]);
+
+      }catch(e){
+
+      }
+    }
+    homeDataGet();
+    if(modalVisible?.action === 'Edit'){
+      setInputs({
+        name:modalVisible?.data?.name || "",
+        description:modalVisible?.data?.description || "",
+        target:modalVisible?.data?.target || 1,
+        frequency:modalVisible?.data?.frequency || "daily"
+      })
+    }
+    else{
+      setInputs({
+        name:"",
+        description: "",
+        target: 1,
+        frequency:"daily"
+      })
+    }
+  },[modalVisible])
   return (
     <Modal
       animationType="fade"
@@ -29,13 +136,16 @@ const HelloModal = ({ visible, onClose }) => {
         <TouchableOpacity style={{position:'absolute',left:'104%',top:-10}} onPress={onClose}>
         <AntDesign name="closecircle" size={34} color="white"  />
         </TouchableOpacity>
-          <Text style={styles.createText}>Create Habit 😀!</Text>
+          <Text style={styles.createText}>{modalVisible?.action || "Create"} Habit 😀!</Text>
           <Text style={styles.labelText}>Name your habbit</Text>
           <TextInput
             placeholder="Book reading 📒"
             style={styles.inputBox}
             placeholderTextColor="lightgray"
+            onChange={(e)=>{setInputs({...input,name:e.nativeEvent.text});setError({...error,name:''})}}
+            value={input.name}
           />
+         {error.name &&  <Text style={{color:'red',fontSize:14}}>{error.name}</Text>}
           <Text style={styles.labelText}>
             Describe your habbit{" "}
             <Text style={styles.optionalText}>
@@ -43,25 +153,17 @@ const HelloModal = ({ visible, onClose }) => {
             </Text>{" "}
           </Text>
           <TextInput
-            placeholder="I will read a book daily till december 2025 📒"
+            placeholder="I will read a book daily till december 2025"
             style={styles.inputBox}
             placeholderTextColor="lightgray"
-          />
-          <Text style={styles.labelText}>
-            Describe your habbit{" "}
-            <Text style={styles.optionalText}>
-              {"("}optional{")"}
-            </Text>{" "}
-          </Text>
-          <TextInput
-            placeholder="I will read a book daily till december 2025 📒"
-            style={styles.inputBox}
-            placeholderTextColor="lightgray"
+            onChange={(e)=>setInputs({...input,description:e.nativeEvent.text})}
+            value={input.description}
+
           />
           <Text style={styles.labelText}>
             How many times will you want to do this in a day!
             <Text style={styles.optionalText}>
-              {"("}optional{")"}
+              {"("}keep 1 for tasks like 🧘🏻  🏃🏻{")"}
             </Text>{" "}
           </Text>
           <View
@@ -85,6 +187,7 @@ const HelloModal = ({ visible, onClose }) => {
                 borderRadius: 10,
                 borderColor: "white",
               }}
+              onPress={()=>setInputs({...input,target:Math.max(1, input.target-1)})}
             >
               <FontAwesome
                 name="minus"
@@ -99,11 +202,19 @@ const HelloModal = ({ visible, onClose }) => {
                 justifyContent: "center",
               }}
             >
-              <Text
-                style={{ textAlign: "center", color: "white", fontSize: 40 }}
-              >
-                {dayTimes}
-              </Text>
+              <TextInput
+                style={{ textAlign: "center", color: "white", fontSize: 40,minWidth: 50,maxWidth: 120,
+                height: 60,
+                 }}
+                keyboardType="number-pad"
+                value={input.target ? input.target.toString() : '1'}
+                onChange={(e) => {
+                  const value = e.nativeEvent.text;
+                  setInputs({ ...input, target: value === '' ? 1 : Math.max(1, parseFloat(value)) });
+                }}
+                placeholder={input.target ?  input.target.toString() : '1'}
+                placeholderTextColor={"white"}
+              />
             </View>
             <TouchableOpacity
               style={{
@@ -116,6 +227,7 @@ const HelloModal = ({ visible, onClose }) => {
                 borderRadius: 10,
                 borderColor: "white",
               }}
+              onPress={()=>setInputs({...input,target:input.target+1})}
             >
               <FontAwesome
                 name="plus"
@@ -148,14 +260,15 @@ const HelloModal = ({ visible, onClose }) => {
                 alignItems: "center",
                 justifyContent: "center",
                 borderWidth: 2,
-                backgroundColor: "#7C55FE",
+                backgroundColor:input.frequency ==='daily'?  "#7C55FE" : "transparent",
                 borderRadius: 10,
                 borderColor: "white",
                 position: "relative",
               }}
+              onPress={()=>setInputs({...input,frequency:'daily'})}
             >
               <Text style={{ color: "white", fontSize: 24 }}>Daily</Text>
-              <AntDesign
+              {input.frequency==='daily' &&<AntDesign
                 name="checkcircle"
                 size={18}
                 color="#FFB254"
@@ -166,7 +279,7 @@ const HelloModal = ({ visible, onClose }) => {
                   backgroundColor: "white",
                   borderRadius: 40,
                 }}
-              />
+              />}
             </TouchableOpacity>
             <TouchableOpacity
               style={{
@@ -175,13 +288,14 @@ const HelloModal = ({ visible, onClose }) => {
                 alignItems: "center",
                 justifyContent: "center",
                 borderWidth: 2,
-                backgroundColor: "transparent",
+                backgroundColor:input.frequency ==='weekly'?  "#7C55FE" : "transparent",
                 borderRadius: 10,
                 borderColor: "white",
               }}
+              onPress={()=>setInputs({...input,frequency:'weekly'})}
             >
               <Text style={{ color: "white", fontSize: 24 }}>Weekly</Text>
-              <AntDesign
+              {input.frequency==='weekly' &&<AntDesign
                 name="checkcircle"
                 size={18}
                 color="#FFB254"
@@ -192,17 +306,19 @@ const HelloModal = ({ visible, onClose }) => {
                   backgroundColor: "white",
                   borderRadius: 40,
                 }}
-              />
+              />}
             </TouchableOpacity>
           </View>
+          <View style={{flexDirection:'row',justifyContent:'space-between'}}>
           <TouchableOpacity
             style={{
               backgroundColor: "#7C55FE",
               padding: 10,
               marginVertical: 20,
               borderRadius: 10,
+              width:modalVisible?.action === 'Edit' ? '80%' : '100%'
             }}
-            onPress={onClose}
+            onPress={handleCreate}
           >
             <Text
               style={{
@@ -212,10 +328,34 @@ const HelloModal = ({ visible, onClose }) => {
                 fontWeight: 600,
               }}
             >
-              Create
+              Save
             </Text>
           </TouchableOpacity>
+          {modalVisible?.action === 'Edit' 
+          &&
+          <TouchableOpacity
+            style={{
+              backgroundColor: "red",
+              padding: 10,
+              marginVertical: 20,
+              borderRadius: 10,
+              width:50,
+              justifyContent:'center',
+              alignItems:'center'
+            }}
+            onPress={()=>{
+              const updatedData = homeData.filter((item)=>item.id !== modalVisible?.data?.id);
+              setHomeData(updatedData);
+              storeData(updatedData);
+              onClose();
+            }}
+          >
+            <AntDesign name="delete" size={24} color="white" />
+          </TouchableOpacity>
+          
+          }
         </View>
+      </View>
       </TouchableOpacity>
     </Modal>
   );
@@ -250,9 +390,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   optionalText: {
-    color: "gray",
+    color: "lightgray",
     marginVertical: 5,
     fontSize: 15,
+    fontWeight:300
   },
   inputBox: {
     color: "white",

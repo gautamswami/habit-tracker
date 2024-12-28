@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { View, TouchableOpacity, StyleSheet, Text } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
@@ -9,17 +9,22 @@ import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import Entypo from "@expo/vector-icons/Entypo";
 import HelloModal from "./HelloModal";
 
+import { ModalContext } from "@/app/_layout";
+
 const CustomTabBar = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const [modalVisible, setModalVisible] = useState(false);
+
+  const context = useContext(ModalContext);
+  const { modalVisible, setModalVisible } = context;
 
   return (
     <View style={styles.container}>
       <View style={styles.tabContainer}>
         <HelloModal
-          visible={modalVisible}
-          onClose={() => setModalVisible(false)}
+          visible={modalVisible.state}
+          onClose={() => setModalVisible({ ...modalVisible, state: false })}
+          modalVisible={modalVisible}
         />
         <TouchableOpacity
           onPress={() => navigation.navigate("index")}
@@ -34,8 +39,14 @@ const CustomTabBar = () => {
           <FontAwesome6 name="chart-simple" size={28} color="white" />
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => setModalVisible(true)}
-          // onPress={() => navigation.navigate("chart")}
+          onPress={() =>
+            setModalVisible({
+              state: true,
+              action: "Create",
+              data: [],
+              id: "",
+            })
+          }
           style={[styles.tabButton, styles.centerOuter]}
         >
           <LinearGradient

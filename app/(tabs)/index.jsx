@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -19,7 +19,10 @@ import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import Animated, { useAnimatedRef } from "react-native-reanimated";
 import Completed from "@/components/home/completed";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import HelloModal from "@/components/HelloModal";
 
+import { ModalContext } from "../_layout";
 export default function App() {
   const navigation = useNavigation();
 
@@ -124,6 +127,19 @@ export default function App() {
 
   const scrollRef = useAnimatedRef();
 
+  const storeData = async (value) => {
+    try {
+      const jsonValue = JSON.stringify(value);
+      await AsyncStorage.setItem("home-habits", jsonValue);
+    } catch (e) {
+      // saving error
+    }
+  };
+
+ 
+  const context = useContext(ModalContext)
+  const {modalVisible,setModalVisible,homeData, setHomeData} = context;
+  
   return (
     <SafeAreaView style={styles.container}>
       <Animated.ScrollView
@@ -191,7 +207,14 @@ export default function App() {
                 flexWrap: "wrap",
               }}
             >
-              {habits?.map((habit, id) => {
+              <HelloModal
+                visible={modalVisible.state}
+                onClose={() =>
+                  setModalVisible({ ...modalVisible, state: false })
+                }
+                modalVisible={modalVisible}
+              />
+              {homeData?.map((habit, id) => {
                 return (
                   <View
                     style={{
@@ -210,16 +233,46 @@ export default function App() {
                         alignItems: "center",
                         width: "100%",
                         marginBottom: 10,
+                        justifyContent: "space-between",
                       }}
                     >
-                      <Feather name="droplet" size={25} color="white" />
-                      <Text style={{ color: "white", fontSize: 20 }}>
-                        {habit?.name}
-                      </Text>
+                      <View style={{ flexDirection: "row" }}>
+                        <Feather name="droplet" size={25} color="white" />
+                        <Text style={{ color: "white", fontSize: 20 }}>
+                          {habit?.name}
+                        </Text>
+                      </View>
+                      <TouchableOpacity
+                        onPress={() => {
+                          setModalVisible({
+                            action: "Edit",
+                            state: true,
+                            data: habit,
+                            id: id,
+                          });
+                        }}
+                      >
+                        <Feather name="settings" size={15} color="white" />
+                      </TouchableOpacity>
                     </View>
+
                     <CircularProgress
-                      progress={waterProgress}
-                      onProgressChange={setWaterProgress}
+                      current={parseInt(habit?.completed)}
+                      target={parseInt(habit?.target)}
+                      progress={habit?.completed || 0}
+                      onProgressChange={(progress) => {
+                        const newHabits = homeData.map((item, index) => {
+                          if (index === id) {
+                            return {
+                              ...item,
+                              completed: progress,
+                            };
+                          }
+                          return item;
+                        });
+                        setHomeData(newHabits);
+                        storeData(newHabits);
+                      }}
                     />
                   </View>
                 );

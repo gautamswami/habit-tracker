@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -7,10 +7,18 @@ import {
   Text,
 } from 'react-native';
 
-const CustomSlider = ({ min = 0, max = 100, step = 1, onValueChange }) => {
-  const [sliderValue, setSliderValue] = useState(min);
+const CustomSlider = ({ min = 0, max = 100, step = 1, onValueChange, value }) => {
+  const [sliderValue, setSliderValue] = useState(value || min);
   const sliderWidth = useRef(0);
   const pan = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    setSliderValue(value);
+    // Update the pan position based on the new sliderValue
+    const range = max - min;
+    const newX = ((sliderValue - min) / range) * sliderWidth.current;
+    pan.setValue(newX);
+  }, [value, sliderValue]);
 
   const panResponder = PanResponder.create({
     onStartShouldSetPanResponder: () => true,
@@ -41,10 +49,16 @@ const CustomSlider = ({ min = 0, max = 100, step = 1, onValueChange }) => {
       style={styles.container}
       onLayout={(e) => {
         sliderWidth.current = e.nativeEvent.layout.width - 20; // Adjust for padding
+        // Set initial pan position based on the current sliderValue
+        const range = max - min;
+        const initialX = ((sliderValue - min) / range) * sliderWidth.current;
+        pan.setValue(initialX);
       }}
     >
       {/* Track background */}
-      <View style={styles.track} />
+      <View style={[[styles.track,{
+            backgroundColor:max<3? "#88D7F6": "#ddd"
+          }]]} />
       {/* Progress track */}
       <Animated.View
         style={[
@@ -56,6 +70,9 @@ const CustomSlider = ({ min = 0, max = 100, step = 1, onValueChange }) => {
               extrapolate: 'clamp',
             }),
           },
+          {
+            backgroundColor:max<3? "#88D7F6": "#9B43FF"
+          }
         ]}
       />
       {/* Thumb */}

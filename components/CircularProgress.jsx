@@ -7,10 +7,11 @@ import CustomSlider from "./CustomSlider";
 export default function CircularProgress({
   size = 150,
   strokeWidth = 8,
-  target = 4,
+  target,
   onProgressChange,
+  current
 }) {
-  const [currentStep, setCurrentStep] = useState(0); // Current step (out of target)
+  const [currentStep, setCurrentStep] = useState(current||0); // Current step (out of target)
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
   const [offset, setOffset] = useState(0);
@@ -25,6 +26,11 @@ export default function CircularProgress({
     setCurrentStep(newStep);
     onProgressChange && onProgressChange(newStep);
   };
+
+  useEffect(() => {
+    // Update the slider value when currentStep changes
+    setCurrentStep(current || 0);
+  }, [current]);
 
   return (
     <View style={styles.container}>
@@ -76,7 +82,13 @@ export default function CircularProgress({
         tapToSeek={true}
         trackHeight={10}
       /> */}
-      <CustomSlider  onValueChange={handleSliderChange} min={0} max={4} step={1} />
+      <CustomSlider 
+        onValueChange={handleSliderChange} 
+        min={0} 
+        max={target} 
+        step={1} 
+        value={currentStep}
+      />
     </View>
   );
 }
