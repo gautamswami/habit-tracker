@@ -14,6 +14,7 @@ export default function Setting() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={{ padding: 20 }}>
       <Text style={styles.title}>Settings</Text>
       <ToggleSwitch
         label="Receive Notifications"
@@ -45,6 +46,7 @@ export default function Setting() {
         value={theme === "dark"}
         onToggle={() => setTheme((prev) => (prev === "light" ? "dark" : "light"))}
       />
+      </View>
       <CustomTabBar />
     </SafeAreaView>
   );
@@ -54,7 +56,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "black",
-    padding: 20,
+    // padding: 20,
   },
   title: {
     color: "white",

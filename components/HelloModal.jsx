@@ -15,19 +15,19 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ModalContext } from "@/app/_layout";
 const HelloModal = ({ visible, onClose,modalVisible }) => {
   const context = useContext(ModalContext);
-  const {homeData, setHomeData} = context;
-
+  const {homeData, setHomeData,habitsData,setHabitsData} = context;
   const [input,setInputs] = useState({
     name:"",
     description: "",
     target: 1,
-    frequency:"daily"
+    frequency:"daily",
+    createdDate:new Date().toISOString()
   })
 
-  const storeData = async (updatedData) => {
+  const storeData = async (updatedData,key) => {
     try {
       const jsonValue = JSON.stringify(updatedData);
-      await AsyncStorage.setItem('home-habits', jsonValue);
+      await AsyncStorage.setItem(key, jsonValue);
     } catch (e) {
       // saving error
 
@@ -47,51 +47,88 @@ const HelloModal = ({ visible, onClose,modalVisible }) => {
   const [error,setError] = useState({
     name:'',
   });
-  const handleCreate = async()=>{
 
-    if(modalVisible?.action === 'Edit'){
-      const updatedData = homeData.map((item)=>{
-        if(item.id === modalVisible?.data?.id){
-          return {
+  const handleCreate = async () => {
+    if (!input.name || input.name === '') {
+      setError({ ...error, name: 'Please enter a valid name' });
+      return;
+    }
+    const updatedHabitsData = { ...habitsData };
+
+    const updateHabitsForDates = (habit) => {
+
+      const today = new Date().toISOString();
+      for (let i = 0; i < 3; i++) {
+        const date = new Date(today);
+        date.setDate(date.getDate() + i);
+        const dateString = date.toLocaleDateString();
+        if (!updatedHabitsData[dateString]) {
+          updatedHabitsData[dateString] = [];
+        }
+
+        const existingHabitIndex = updatedHabitsData[dateString].findIndex(
+          (item) => item.id === habit.id
+        );
+
+        if (existingHabitIndex > -1) {
+          updatedHabitsData[dateString][existingHabitIndex] = habit;
+        } else {
+          updatedHabitsData[dateString].push(habit);
+        }
+      }
+      setHabitsData(updatedHabitsData);
+    };
+
+    if (modalVisible?.action === 'Edit') {
+      const updatedData = homeData.map((item) => {
+        if (item.id === modalVisible?.data?.id) {
+          const updatedHabit = {
             ...item,
-            name:input.name,
-            description:input.description,
-            target:input.target,
-            frequency:input.frequency,
-          }
+            name: input.name,
+            description: input.description,
+            target: input.target,
+            frequency: input.frequency,
+            createdDate: new Date().toISOString(),
+          };
+          updateHabitsForDates(updatedHabit);
+          return updatedHabit;
         }
         return item;
-      })
+      });
       setHomeData(updatedData);
-      storeData(updatedData);
+      // setHabitsData(updatedHabitsData);
+      storeData(updatedData,'home-habits');
+      storeData(updatedHabitsData,'habits-data');
       onClose();
       return;
     }
 
     const newHabit = {
-      id:homeData.length+1 || 1,
-      name:input.name,
-      description:input.description,
-      target:input.target,
-      frequency:input.frequency,
-      completed:0
-    }
-    if(!input.name || input.name===''){
-        setError({...error,name:'Please enter a valid name'})
-        return;
-    }
-    try{
-    const updatedData = [...homeData,newHabit]
-    setHomeData(updatedData);
-    storeData(updatedData);
+      id: homeData.length + 1 || 1,
+      name: input.name,
+      description: input.description,
+      target: input.target,
+      frequency: input.frequency,
+      completed: 0,
+      createdDate: new Date().toISOString(),
+    };
 
-    }catch(e){
+    
+    try {
+      const updatedData = [...homeData, newHabit];
+      setHomeData(updatedData);
+      updateHabitsForDates(newHabit);
+      // setHabitsData(updatedHabitsData);
+      storeData(updatedData,'home-habits');
+      storeData(updatedHabitsData,'habits-data');
+      
+    } catch (e) {
+      // handle error
 
-    }
-    finally {
+    } finally {
       onClose();
     }
-  }
+  };
 
   useEffect(()=>{
     const homeDataGet = async()=>{
@@ -344,9 +381,17 @@ const HelloModal = ({ visible, onClose,modalVisible }) => {
               alignItems:'center'
             }}
             onPress={()=>{
-              const updatedData = homeData.filter((item)=>item.id !== modalVisible?.data?.id);
+              const updatedData = homeData.filter((item) => item.id !== modalVisible?.data?.id);
               setHomeData(updatedData);
-              storeData(updatedData);
+              storeData(updatedData,'home-habits');
+              const updatedHabitsData = { ...habitsData };
+              Object.keys(updatedHabitsData).forEach((date) => {
+                updatedHabitsData[date] = updatedHabitsData[date].filter(
+                  (habit) => habit.id !== modalVisible?.data?.id
+                );
+              });
+              setHabitsData(updatedHabitsData);
+              storeData(updatedHabitsData, 'habits-data');
               onClose();
             }}
           >

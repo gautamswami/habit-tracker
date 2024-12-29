@@ -9,7 +9,8 @@ export default function CircularProgress({
   strokeWidth = 8,
   target,
   onProgressChange,
-  current
+  current,
+  disabled,
 }) {
   const [currentStep, setCurrentStep] = useState(current||0); // Current step (out of target)
   const radius = (size - strokeWidth) / 2;
@@ -69,19 +70,7 @@ export default function CircularProgress({
           {currentStep}/{target}
         </Text>
       </View>
-      {/* <Slider
-        style={styles.slider} 
-        minimumValue={0}
-        maximumValue={target}
-        step={1}
-        value={currentStep}
-        onSlidingComplete={handleSliderChange}
-        minimumTrackTintColor="#7C55FE"
-        maximumTrackTintColor="#7C55FE"
-        thumbTintColor="#7C55FE"
-        tapToSeek={true}
-        trackHeight={10}
-      /> */}
+      {!disabled &&
       <CustomSlider 
         onValueChange={handleSliderChange} 
         min={0} 
@@ -89,6 +78,7 @@ export default function CircularProgress({
         step={1} 
         value={currentStep}
       />
+}
     </View>
   );
 }

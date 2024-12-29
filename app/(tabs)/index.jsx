@@ -23,13 +23,16 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import HelloModal from "@/components/HelloModal";
 
 import { ModalContext } from "../_layout";
+import NoData from "@/assets/icons/nodata";
 export default function App() {
   const navigation = useNavigation();
+
+  const context = useContext(ModalContext)
+  const { modalVisible, setModalVisible, homeData, setHomeData,completeData,setCompleteData ,selectedDate, setSelectedDate,habitsData,setHabitsData} = context;
 
   // Get current date and time
   const now = new Date();
   const hours = now.getHours();
-  const [selectedDate, setSelectedDate] = useState(new Date().getDate());
   const [waterProgress, setWaterProgress] = useState(0);
   const [meditationProgress, setMeditationProgress] = useState(0.1);
 
@@ -74,14 +77,8 @@ export default function App() {
 
   const dates = getDatesOfMonth();
 
-  const [habits, setHabits] = useState([
-    { name: "Water", target: 4, completed: 0 },
-    { name: "Water", target: 4, completed: 0 },
-    { name: "Water", target: 4, completed: 0 },
-  ]);
-
   const renderItem = ({ item }) => {
-    const isToday = item.getDate() === selectedDate;
+    const isToday = item.toLocaleDateString() === selectedDate;
     return (
       <LinearGradient
         colors={["#9B43FF", "#88D7F6"]}
@@ -99,7 +96,7 @@ export default function App() {
       >
         <TouchableOpacity
           onPress={() => {
-            setSelectedDate(item.getDate());
+            setSelectedDate(item.toLocaleDateString());
           }}
           style={{
             alignItems: "center",
@@ -127,19 +124,24 @@ export default function App() {
 
   const scrollRef = useAnimatedRef();
 
-  const storeData = async (value) => {
+  const storeData = async (value,key) => {
     try {
       const jsonValue = JSON.stringify(value);
-      await AsyncStorage.setItem("home-habits", jsonValue);
+      await AsyncStorage.setItem(key, jsonValue);
     } catch (e) {
       // saving error
     }
   };
+  const [habitsForSelectedDate, setHabitsForSelectedDate] = useState([]);
+  useEffect(() => {
+    setHabitsForSelectedDate(getHabitsForSelectedDate());
+  }, [selectedDate]);
 
- 
-  const context = useContext(ModalContext)
-  const {modalVisible,setModalVisible,homeData, setHomeData} = context;
-  
+  const getHabitsForSelectedDate = () => {
+    return habitsData[selectedDate] || [];
+  };
+
+
   return (
     <SafeAreaView style={styles.container}>
       <Animated.ScrollView
@@ -178,7 +180,7 @@ export default function App() {
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ justifyContent: "center" }}
-          initialScrollIndex={Math.max(selectedDate - 3, 0)}
+          initialScrollIndex={Math.max(selectedDate.split("/")[1] - 3, 0)}
           getItemLayout={(data, index) => ({
             length: 50,
             offset: 65 * index,
@@ -186,19 +188,21 @@ export default function App() {
           })}
           style={{ marginVertical: 30 }}
         />
-        <Completed />
+        {selectedDate <= new Date().toLocaleDateString() && <Completed />}
         <View>
           <View style={{ marginTop: 20 }}>
-            <Text
-              style={{
-                color: "white",
-                fontSize: 24,
-                fontWeight: "600",
-                marginBottom: 20,
-              }}
-            >
-              Habits
-            </Text>
+            {habitsForSelectedDate.length > 0 && (
+              <Text
+                style={{
+                  color: "white",
+                  fontSize: 24,
+                  fontWeight: "600",
+                  marginBottom: 20,
+                }}
+              >
+                Habits
+              </Text>
+            )}
             <View
               style={{
                 flexDirection: "row",
@@ -214,69 +218,138 @@ export default function App() {
                 }
                 modalVisible={modalVisible}
               />
-              {homeData?.map((habit, id) => {
-                return (
-                  <View
-                    style={{
-                      width: "48%",
-                      backgroundColor: "#262626",
-                      padding: 10,
-                      borderRadius: 20,
-                      alignItems: "center",
-                    }}
-                    key={`habit-${id}`}
-                  >
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        gap: 5,
-                        alignItems: "center",
-                        width: "100%",
-                        marginBottom: 10,
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <View style={{ flexDirection: "row" }}>
-                        <Feather name="droplet" size={25} color="white" />
-                        <Text style={{ color: "white", fontSize: 20 }}>
-                          {habit?.name}
-                        </Text>
-                      </View>
-                      <TouchableOpacity
-                        onPress={() => {
-                          setModalVisible({
-                            action: "Edit",
-                            state: true,
-                            data: habit,
-                            id: id,
-                          });
+              {habitsForSelectedDate.length > 0 ? (
+                <>
+                  {habitsForSelectedDate.map((habit, id) => {
+                    return (
+                      <View
+                        style={{
+                          width: "48%",
+                          backgroundColor: "#262626",
+                          padding: 10,
+                          borderRadius: 20,
+                          alignItems: "center",
                         }}
+                        key={`habit-${id}`}
                       >
-                        <Feather name="settings" size={15} color="white" />
-                      </TouchableOpacity>
-                    </View>
-
-                    <CircularProgress
-                      current={parseInt(habit?.completed)}
-                      target={parseInt(habit?.target)}
-                      progress={habit?.completed || 0}
-                      onProgressChange={(progress) => {
-                        const newHabits = homeData.map((item, index) => {
-                          if (index === id) {
-                            return {
-                              ...item,
-                              completed: progress,
-                            };
+                        <View
+                          style={{
+                            flexDirection: "row",
+                            gap: 5,
+                            alignItems: "center",
+                            width: "100%",
+                            marginBottom: 10,
+                            justifyContent: "space-between",
+                          }}
+                        >
+                          <View
+                            style={{
+                              flexDirection: "row",
+                              width: "75%",
+                              alignItems: "center",
+                            }}
+                          >
+                            <Feather name="droplet" size={25} color="white" />
+                            <Text style={{ color: "white", fontSize: 20 }}>
+                              {habit?.name}
+                            </Text>
+                          </View>
+                          <TouchableOpacity
+                            onPress={() => {
+                              setModalVisible({
+                                action: "Edit",
+                                state: true,
+                                data: habit,
+                                id: id,
+                              });
+                            }}
+                          >
+                            <Feather name="settings" size={15} color="white" />
+                          </TouchableOpacity>
+                        </View>
+                        <CircularProgress
+                          current={
+                            selectedDate <= new Date().toLocaleDateString()
+                              ? parseInt(habit?.completed)
+                              : 0
                           }
-                          return item;
-                        });
-                        setHomeData(newHabits);
-                        storeData(newHabits);
-                      }}
-                    />
-                  </View>
-                );
-              })}
+                          disabled={selectedDate !== new Date().toLocaleDateString()}
+                          target={parseInt(habit?.target)}
+                          progress={habit?.completed || 0}
+                          onProgressChange={(progress) => {
+                            const newHabits = habitsForSelectedDate.map(
+                              (item, index) => {
+                                if (index === id) {
+                                  return {
+                                    ...item,
+                                    completed: progress,
+                                  };
+                                }
+                                return item;
+                              }
+                            );
+                            const updatedHabitsData = {
+                              ...habitsData,
+                              [selectedDate]: newHabits,
+                            };
+                            setHabitsData(updatedHabitsData);
+                            storeData(updatedHabitsData, "habits-data");
+
+                            const newCompleteData = { ...completeData };
+                            const createdDate = selectedDate;
+
+                            if (progress >= habit?.target) {
+                              newCompleteData[createdDate] = {
+                                ...newCompleteData[createdDate],
+                                [habit.name]: habit,
+                              };
+                            } else {
+                              if (
+                                newCompleteData[createdDate] &&
+                                newCompleteData[createdDate][habit.name]
+                              ) {
+                                delete newCompleteData[createdDate][habit.name];
+                                if (
+                                  Object.keys(
+                                    newCompleteData[createdDate]
+                                  ).length === 0
+                                ) {
+                                  delete newCompleteData[createdDate];
+                                }
+                              }
+                            }
+                            setCompleteData(newCompleteData);
+                            storeData(newCompleteData, "completed-habits");
+                          }}
+                        />
+                      </View>
+                    );
+                  })}
+                </>
+              ) : (
+                <View
+                  style={{
+                    minWidth: 300,
+                    height: 200,
+                    marginTop: 30,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    margin: "auto",
+                  }}
+                >
+                  <NoData />
+                  <Text
+                    style={{
+                      textAlign: "center",
+                      color: "white",
+                      fontSize: 22,
+                      marginTop: 10,
+                    }}
+                  >
+                    No habits
+                  </Text>
+                </View>
+              )}
             </View>
           </View>
         </View>

@@ -33,17 +33,26 @@ export default function RootLayout() {
     }
   };
 const [homeData, setHomeData] = useState([]);
+const [completeData,setCompleteData] = useState([]);
+const [selectedDate, setSelectedDate] = useState(new Date().toLocaleDateString());
+const [habitsData,setHabitsData] = useState([]);
+
   useEffect(() => {
     const homeDataGet = async () => {
       try {
         const data = await getData("home-habits");
+        const completedata = await getData("completed-habits");
+        const habitsData = await getData("habits-data");
         setHomeData(data || []);
+        setCompleteData(completedata || []);
+        setHabitsData(habitsData || []);
       } catch (e) {
       }
     };
     homeDataGet();
   }, []);
   useEffect(() => {
+    // AsyncStorage.clear();
     if (loaded) {
       SplashScreen.hideAsync();
     }
@@ -55,7 +64,7 @@ const [homeData, setHomeData] = useState([]);
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <ModalContext.Provider value={{modalVisible,setModalVisible,homeData, setHomeData}}>
+      <ModalContext.Provider value={{modalVisible,setModalVisible,homeData, setHomeData,completeData,setCompleteData,selectedDate, setSelectedDate,habitsData,setHabitsData}}>
       <StatusBar  style='auto' />
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

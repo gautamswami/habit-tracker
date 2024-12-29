@@ -1,8 +1,16 @@
+import { ModalContext } from '@/app/_layout';
 import { LinearGradient } from 'expo-linear-gradient';
-import React from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { FlatList, Text, View } from 'react-native'
 
-export default function Completed() {
+export default function Completed({calendarDate}) {
+  const {completeData,setCompleteData,selectedDate, setSelectedDate} = useContext(ModalContext)
+  const [completedArray, setCompletedArray] = useState([]);
+  useEffect(() => {
+    const currentDate = calendarDate ? calendarDate : selectedDate;
+    const currentData = completeData[currentDate] || {};
+    setCompletedArray(Object.values(currentData).map(item => item));
+  }, [selectedDate, completeData,calendarDate]);
     const renderCompletedCards = ({ item, id }) => {
         return (
           <LinearGradient
@@ -25,21 +33,14 @@ export default function Completed() {
                 textAlign: "center",
               }}
             >
-              {item.title}{" "}
-              {item.complete !== item?.total && (
-                <>
-                  {"("}
-                  {item.complete}/{item.total}
-                  {")"}
-                </>
-              )}
+              {item.name}
             </Text>
           </LinearGradient>
         );
       }; 
   return (
     <View>
-          <Text
+          {completedArray.length>0 &&<Text
             style={{
               color: "white",
               fontSize: 24,
@@ -48,30 +49,9 @@ export default function Completed() {
             }}
           >
             Completed
-          </Text>
+          </Text>}
           <FlatList
-            data={[
-              {
-                title: "Drink water",
-                complete: 6,
-                total: 10,
-              },
-              {
-                title: "Read book",
-                complete: 1,
-                total: 1,
-              },
-              {
-                title: "Workout",
-                complete: 1,
-                total: 1,
-              },
-              {
-                title: "Yoga",
-                complete: 1,
-                total: 1,
-              },
-            ]}
+            data={completedArray}
             renderItem={renderCompletedCards}
             keyExtractor={(item) => item.title}
             horizontal

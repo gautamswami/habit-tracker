@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-const CustomCalendar = ({ highlightedDates = [] }) => {
+import { ModalContext } from '@/app/_layout';
+const CustomCalendar = ({ highlightedDates = [],calendarDate,setCalendarDate }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null); // State to track selected date
+
   const today = new Date();
 
   // Helper function to get days in a month
@@ -76,6 +78,7 @@ const CustomCalendar = ({ highlightedDates = [] }) => {
   // Handle date selection
   const handleDateSelect = (day) => {
     setSelectedDate({ day, month: currentDate.getMonth(), year: currentDate.getFullYear() });
+    setCalendarDate(`${currentDate.getMonth() + 1}/${day}/${currentDate.getFullYear()}`);
   };
 
   return (

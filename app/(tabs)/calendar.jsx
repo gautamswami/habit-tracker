@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useNavigation } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -7,7 +7,7 @@ import CustomCalendar from "@/components/CustomCalendar";
 import Completed from "@/components/home/completed";
 export default function CalendarFunction() {
   const navigation = useNavigation();
-
+  const [calendarDate, setCalendarDate] = useState('');
   return (
     <SafeAreaView style={styles.container}>
       <TouchableOpacity
@@ -22,8 +22,8 @@ export default function CalendarFunction() {
         />
         <Text style={{ color: "white", fontSize: 20 }}>Back</Text>
       </TouchableOpacity>
-      <CustomCalendar />  
-      <Completed />
+      <CustomCalendar calendarDate={calendarDate} setCalendarDate={setCalendarDate} />  
+      <Completed calendarDate={calendarDate} setCalendarDate={setCalendarDate}/>
 
     </SafeAreaView>
   );
