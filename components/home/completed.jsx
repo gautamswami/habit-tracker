@@ -53,7 +53,7 @@ export default function Completed({calendarDate}) {
           <FlatList
             data={completedArray}
             renderItem={renderCompletedCards}
-            keyExtractor={(item) => item.title}
+            keyExtractor={(item) => item.name}
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ justifyContent: "center", gap: 10 }}

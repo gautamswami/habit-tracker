@@ -11,6 +11,8 @@ export default function SingleChartCustom() {
     { name: "Fri", val: false },
     { name: "Sat", val: true },
   ];
+
+  
   const renderItem = ({ item }) => {
     return (
       <View

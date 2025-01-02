@@ -138,7 +138,7 @@ export default function App() {
   }, [selectedDate]);
 
   const getHabitsForSelectedDate = () => {
-    return habitsData[selectedDate] || [];
+    return habitsData[selectedDate || new Date().toLocaleDateString()] || [];
   };
 
 
@@ -249,7 +249,7 @@ export default function App() {
                               alignItems: "center",
                             }}
                           >
-                            <Feather name="droplet" size={25} color="white" />
+                            {/* <Feather name="droplet" size={25} color="white" /> */}
                             <Text style={{ color: "white", fontSize: 20 }}>
                               {habit?.name}
                             </Text>
@@ -267,6 +267,7 @@ export default function App() {
                             <Feather name="settings" size={15} color="white" />
                           </TouchableOpacity>
                         </View>
+                        {habit && 
                         <CircularProgress
                           current={
                             selectedDate <= new Date().toLocaleDateString()
@@ -322,6 +323,7 @@ export default function App() {
                             storeData(newCompleteData, "completed-habits");
                           }}
                         />
+                        }
                       </View>
                     );
                   })}

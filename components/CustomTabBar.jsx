@@ -33,11 +33,22 @@ const CustomTabBar = () => {
           <Octicons name="home" size={28} color={"white"} />
         </TouchableOpacity>
         <TouchableOpacity
+          onPress={() => navigation.navigate("calendar")}
+          style={[
+            styles.tabButton,
+            route.name === "calendar" && styles.activeTab,
+          ]}
+        >
+          <Ionicons name="calendar-outline" size={28} color={"white"} />
+        </TouchableOpacity>
+        <TouchableOpacity
           onPress={() => navigation.navigate("chart")}
           style={[styles.tabButton, route.name === "chart" && styles.activeTab]}
         >
           <FontAwesome6 name="chart-simple" size={28} color="white" />
         </TouchableOpacity>
+        
+      
         <TouchableOpacity
           onPress={() =>
             setModalVisible({
@@ -56,16 +67,7 @@ const CustomTabBar = () => {
             <Entypo name="plus" size={32} color="white" />
           </LinearGradient>
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => navigation.navigate("notification")}
-          style={[
-            styles.tabButton,
-            route.name === "notification" && styles.activeTab,
-          ]}
-        >
-          <Ionicons name="notifications-outline" size={28} color={"white"} />
-        </TouchableOpacity>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           onPress={() => navigation.navigate("setting")}
           style={[
             styles.tabButton,
@@ -73,7 +75,7 @@ const CustomTabBar = () => {
           ]}
         >
           <Octicons name="gear" size={28} color={"white"} />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     </View>
   );

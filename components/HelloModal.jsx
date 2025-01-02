@@ -58,7 +58,7 @@ const HelloModal = ({ visible, onClose,modalVisible }) => {
     const updateHabitsForDates = (habit) => {
 
       const today = new Date().toISOString();
-      for (let i = 0; i < 3; i++) {
+      for (let i = 0; i < 30; i++) {
         const date = new Date(today);
         date.setDate(date.getDate() + i);
         const dateString = date.toLocaleDateString();
